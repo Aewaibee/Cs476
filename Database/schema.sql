@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS spray_records;
 USE spray_records;
 
--- Users table:
+-- Users table
 -- Stores operator/admin accounts. Passwords are stored as bcrypt hashes.
 CREATE TABLE IF NOT EXISTS users (
   id CHAR(36) PRIMARY KEY,
