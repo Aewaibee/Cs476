@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Search</title>
+  <link rel="stylesheet" href="Assets/styles.css" />
+</head>
+
+<body>
+  <header>
+    <div class="brand">Spray Records</div>
+    <div class="right">
+      <span id="pageTitle"></span>
+      <span id="userMeta"></span>
+      <button class="secondary" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <nav>
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="admin-search.html">Search Records</a>
+        <a href="admin-map.html">Map View</a>
+      </nav>
+
+      <section style="flex:1">
+        <h2>Search Records</h2>
+        <div class="card">
+          <div class="row" style="align-items:end">
+            <div style="flex:1;min-width:220px">
+              <div class="small">Operator (email contains)</div>
+              <input id="operator" />
+            </div>
+            <div style="flex:1;min-width:220px">
+              <div class="small">Product (contains)</div>
+              <input id="product" />
+            </div>
+            <div style="min-width:180px">
+              <div class="small">Status</div>
+              <select id="status">
+                <option value="ALL">All</option>
+                <option value="DRAFT">Draft</option>
+                <option value="SUBMITTED">Submitted</option>
+                <option value="APPROVED">Approved</option>
+                <option value="FLAGGED">Flagged</option>
+              </select>
+            </div>
+            <button id="btnSearch">Search</button>
+            <button class="secondary" id="btnReset">Reset</button>
+          </div>
+
+          <div class="row" style="margin-top:10px;align-items:center">
+            <div class="small" id="count"></div>
+            <div style="flex:1"></div>
+            <button class="secondary" id="btnExportJSON">Export JSON</button>
+            <button class="secondary" id="btnExportCSV">Export CSV</button>
+            <button class="secondary" id="btnExportPDF">Export PDF</button>
+          </div>
+        </div>
+
+        <table class="table" id="tbl" style="margin-top:10px">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Operator</th>
+              <th>Product</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+      </section>
+    </div>
+  </main>
+  <script src="Assets/app.js"></script>
+  <script src="Assets/admin-search.js"></script>
+</body>
+</html>
