@@ -1,0 +1,149 @@
+:root{
+  --border:#e2e2e2;
+  --text:#111;
+  --muted:#666;
+  --bg:#fafafa;
+  --card:#fff;
+  --btn:#111;
+  --btnText:#fff;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* Top bar */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 16px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+}
+
+header .brand{font-weight:800;}
+
+header .right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  font-size:12px;
+  color:var(--muted);
+}
+
+main{
+  padding:16px;
+  max-width:1100px;
+  margin:0 auto;
+}
+
+/* Layout with left nav + main content */
+.layout{display:flex;gap:16px;}
+
+/* Left navigation panel */
+nav{
+  width:220px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  height:fit-content;
+}
+
+nav a{
+  display:block;
+  padding:8px 10px;
+  border-radius:8px;
+  color:var(--text);
+  text-decoration:none;
+}
+
+/* Highlight the active page link */
+nav a.active{background:#f1f1f1;font-weight:700;}
+
+/* Card container for content */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+}
+
+/* Flexible row layout */
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+
+/* KPI block on dashboards */
+.kpi{flex:1;min-width:180px;}
+.kpi .label{font-size:12px;color:var(--muted);}
+.kpi .value{font-size:26px;font-weight:800;margin-top:6px;}
+
+/* Inputs */
+input,select,textarea,button{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  font-size:14px;
+}
+input,select,textarea{width:100%;}
+textarea{min-height:90px;}
+
+/* Buttons */
+button{
+  background:var(--btn);
+  color:var(--btnText);
+  cursor:pointer;
+  border:1px solid #000;
+}
+button.secondary{
+  background:#fff;
+  color:#111;
+  border:1px solid var(--border);
+}
+button:disabled{opacity:.6;cursor:not-allowed;}
+
+/* Tables */
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{
+  padding:10px;
+  border-top:1px solid var(--border);
+  text-align:left;
+  font-size:14px;
+}
+
+/* Status pill */
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-size:12px;
+}
+
+/* Notices for success/error messages */
+.notice{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#fff;
+}
+.notice.error{border-color:#ffb3b3;background:#fff7f7;}
+.notice.ok{border-color:#bde5bd;background:#f7fff7;}
+.small{font-size:12px;color:var(--muted);}
+
+/* 2-column grid for forms */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* Mobile responsiveness */
+@media (max-width: 900px){
+  .layout{flex-direction:column}
+  nav{width:auto}
+  .grid2{grid-template-columns:1fr}
+}
