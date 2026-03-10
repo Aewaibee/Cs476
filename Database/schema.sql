@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Spray records table:
 -- Stores pesticide application records created by operators.
 -- Workflow:
---   DRAFT -> SUBMITTED -> (APPROVED | FLAGGED)
+-- DRAFT -> SUBMITTED -> (APPROVED | FLAGGED)
 CREATE TABLE IF NOT EXISTS spray_records (
   id CHAR(36) PRIMARY KEY,
   operator_email VARCHAR(255) NOT NULL,
