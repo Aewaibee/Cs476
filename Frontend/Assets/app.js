@@ -1,4 +1,5 @@
 /**
+<<<<<<< HEAD
  Shared frontend utilities for all pages.
  * This file handles:
  * - API base URL
@@ -8,6 +9,24 @@
 
 const API_BASE = "http://localhost:4000";
 
+=======
+ * app.js
+ * Shared frontend utilities for all pages.
+ *
+ * This file handles:
+ * - API base URL
+ * - JWT token storage
+ * - role-based page protection
+ * - helper functions for DOM and formatting
+ */
+
+// Backend API base (edit if your backend runs elsewhere)
+const API_BASE = "http://localhost:4000";
+
+// ---------------------------
+// Local storage helpers
+// ---------------------------
+>>>>>>> ce371b3 (frontendcomplete)
 function getToken(){ return localStorage.getItem("token"); }
 function getUser(){
   const raw = localStorage.getItem("user");
@@ -22,7 +41,14 @@ function clearAuth(){
   localStorage.removeItem("user");
 }
 
+<<<<<<< HEAD
 /*
+=======
+// ---------------------------
+// Route protection
+// ---------------------------
+/**
+>>>>>>> ce371b3 (frontendcomplete)
  * Require the user to be logged in.
  * If a role is provided, also enforce role-based access control (RBAC).
  */
@@ -45,7 +71,11 @@ function requireAuth(role){
   }
 }
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> ce371b3 (frontendcomplete)
  * Update the header title and display user info on protected pages.
  */
 function setHeader(title){
@@ -57,7 +87,11 @@ function setHeader(title){
   if(meta) meta.textContent = user ? `${user.email} (${user.role})` : "";
 }
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> ce371b3 (frontendcomplete)
  * Highlight active nav link based on current file name.
  */
 function setNavActive(){
@@ -73,6 +107,10 @@ function setNavActive(){
 /**
  * Wrapper around fetch() that:
  * - adds JSON headers
+<<<<<<< HEAD
+=======
+ * - attaches JWT token automatically
+>>>>>>> ce371b3 (frontendcomplete)
  * - parses JSON responses
  * - throws a readable error message for UI
  */
@@ -85,7 +123,11 @@ async function apiFetch(path, options = {}){
 
   const res = await fetch(API_BASE + path, { ...options, headers });
 
+<<<<<<< HEAD
   // Some endpoints return text, most return JSON
+=======
+  // Some endpoints return text; most return JSON
+>>>>>>> ce371b3 (frontendcomplete)
   const ct = res.headers.get("content-type") || "";
   const data = ct.includes("application/json") ? await res.json() : await res.text();
 
@@ -98,7 +140,13 @@ async function apiFetch(path, options = {}){
   return data;
 }
 
+<<<<<<< HEAD
 // UI helpers
+=======
+// ---------------------------
+// UI helpers
+// ---------------------------
+>>>>>>> ce371b3 (frontendcomplete)
 function logout(){
   clearAuth();
   window.location.href = "login.html";
@@ -108,4 +156,8 @@ function q(id){ return document.getElementById(id); }
 /** Format a record status as a pill badge */
 function fmtStatus(status){
   return `<span class="badge">${status}</span>`;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ce371b3 (frontendcomplete)

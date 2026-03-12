@@ -1,42 +1,57 @@
-<!DOCTYPE html>
+<!--
+  Simple English comments version
+  This page is part of the CS476 Spray Records project.
+  The comments in this file explain the structure of the page in easy words.
+-->
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width,initial-scale=1"/>
-        <title>Login</title>
-        <link rel="stylesheet" href="Assets/style.css"/>
-    </head>
-    <body>
-        <header>
-            <div class="brand">Spray Records</div>
-            <div class="right small">Demo: operator@test.com / pass123 • admin@test.com / pass123</div>        
-        </header>
-        <main style="max-width:520px">
-            <div class="card">
-                <h2>Login</h2>
-                <!--Error Message Placeholder-->
-                <div id="msg" class="notice error" style="display:none"></div>
-                <div class="row">
-                    <div style="flex:1">
-                        <input id="email" value="operator@test.com"/>
-                    </div>
-                </div>
-                <div class="row" style="margin-top:10px">
-                    <div style="flex:1">
-                        <input id="password" type="password" value="pass123"/>
-                    </div>
-                </div>
-                <div style="margin-top:12px" class="row">
-                    <button id="btnLogin" style="flex:1">Sign In</button>
-                </div>
-                <div class="small" style="margin-top:10px">
-                    First Time? Click here to seed demo users:
-                    <button class="secondary" id="btnSeed">Seed Demo Users</button>
-                </div>
-            </div>
-        </main>
-        <script src="Assets/app.js"></script>
-        <script>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <!-- Public header -->
+  <header>
+    <div class="brand">Spray Records</div>
+    <div class="right small">Demo: operator@test.com / pass123 • admin@test.com / pass123</div>
+  </header>
+
+  <main style="max-width:520px">
+    <div class="card">
+      <h2>Login</h2>
+
+      <!-- Error message placeholder -->
+      <div id="msg" class="notice error" style="display:none"></div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="small">Email</div>
+          <input id="email" value="operator@test.com" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1">
+          <div class="small">Password</div>
+          <input id="password" type="password" value="pass123" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="row">
+        <button id="btnLogin" style="flex:1">Sign In</button>
+      </div>
+
+      <div class="small" style="margin-top:10px">
+        First time? Click here to seed demo users:
+        <button class="secondary" id="btnSeed">Seed Demo Users</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/app.js"></script>
+  <script>
     /**
      * Seed creates demo users in the database:
      * - operator@test.com / pass123
@@ -65,7 +80,7 @@
           body: JSON.stringify({ email, password })
         });
 
-        // This will save token and user locally
+        // Save token and user info locally
         setAuth(data.token, data.user);
 
         // Redirect to role-specific dashboard

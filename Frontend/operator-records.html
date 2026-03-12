@@ -1,0 +1,63 @@
+<!--
+  Simple English comments version
+  This page is part of the CS476 Spray Records project.
+  The comments in this file explain the structure of the page in easy words.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Records</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <!-- Protected header (logout + user meta) -->
+  <header>
+    <div class="brand">Spray Records</div>
+    <div class="right">
+      <span id="pageTitle"></span>
+      <span id="userMeta"></span>
+      <button class="secondary" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <nav>
+        <a href="operator-dashboard.html">Dashboard</a>
+        <a href="operator-new-record.html">New Record</a>
+        <a href="operator-records.html">My Records</a>
+      </nav>
+
+      <section style="flex:1">
+        <h2>My Records</h2>
+<div class="row" style="align-items:end">
+  <div style="max-width:260px">
+    <div class="small">Status</div>
+    <select id="status">
+      <option value="ALL">All</option>
+      <option value="DRAFT">Draft</option>
+      <option value="SUBMITTED">Submitted</option>
+      <option value="APPROVED">Approved</option>
+      <option value="FLAGGED">Flagged</option>
+    </select>
+  </div>
+  <button class="secondary" id="btnRefresh">Refresh</button>
+</div>
+
+<table class="table" id="tbl" style="margin-top:10px">
+  <thead><tr><th>Date</th><th>Product</th><th>PCP #</th><th>Status</th><th>Action</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Shared helpers -->
+  <script src="assets/app.js"></script>
+  <!-- Page script -->
+  <script src="assets/operator-records.js"></script>
+</body>
+</html>

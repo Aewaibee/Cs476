@@ -1,8 +1,19 @@
+<<<<<<< HEAD
+=======
+/**
+ * admin-map.js
+ * Shows records with coordinates and allows opening them in OpenStreetMap.
+ */
+>>>>>>> ce371b3 (frontendcomplete)
 requireAuth("ADMIN");
 setHeader("Map View");
 setNavActive();
 
+<<<<<<< HEAD
 (async function () {
+=======
+(async function(){
+>>>>>>> ce371b3 (frontendcomplete)
   const rows = await apiFetch("/admin/records/map");
   const tbody = q("tbl").querySelector("tbody");
 

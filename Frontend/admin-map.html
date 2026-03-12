@@ -1,14 +1,31 @@
+<<<<<<< HEAD
 <!doctype html>
 <html lang="en">
 
+=======
+<!--
+  Simple English comments version
+  This page is part of the CS476 Spray Records project.
+  The comments in this file explain the structure of the page in easy words.
+-->
+<!doctype html>
+<html lang="en">
+>>>>>>> ce371b3 (frontendcomplete)
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Map</title>
+<<<<<<< HEAD
   <link rel="stylesheet" href="Assets/styles.css" />
 </head>
 
 <body>
+=======
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <!-- Protected header (logout + user meta) -->
+>>>>>>> ce371b3 (frontendcomplete)
   <header>
     <div class="brand">Spray Records</div>
     <div class="right">
@@ -17,6 +34,10 @@
       <button class="secondary" onclick="logout()">Logout</button>
     </div>
   </header>
+<<<<<<< HEAD
+=======
+
+>>>>>>> ce371b3 (frontendcomplete)
   <main>
     <div class="layout">
       <nav>
@@ -27,6 +48,7 @@
 
       <section style="flex:1">
         <h2>Map View (Coordinates)</h2>
+<<<<<<< HEAD
         <div class="notice">
           This page lists records that have coordinates (lat/lng). Click a row to open OpenStreetMap.
         </div>
@@ -44,11 +66,31 @@
           </thead>
           <tbody></tbody>
         </table>
+=======
+<div class="notice">
+  This page lists records that have coordinates (lat/lng). Click a row to open OpenStreetMap.
+</div>
+
+<table class="table" id="tbl" style="margin-top:10px">
+  <thead><tr><th>Date</th><th>Operator</th><th>Product</th><th>Lat</th><th>Lng</th><th>Status</th></tr></thead>
+  <tbody></tbody>
+</table>
+>>>>>>> ce371b3 (frontendcomplete)
 
       </section>
     </div>
   </main>
+<<<<<<< HEAD
   <script src="Assets/app.js"></script>
   <script src="Assets/admin-map.js"></script>
 </body>
 </html>
+=======
+
+  <!-- Shared helpers -->
+  <script src="assets/app.js"></script>
+  <!-- Page script -->
+  <script src="assets/admin-map.js"></script>
+</body>
+</html>
+>>>>>>> ce371b3 (frontendcomplete)

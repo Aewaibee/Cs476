@@ -1,0 +1,78 @@
+<!--
+  Simple English comments version
+  This page is part of the CS476 Spray Records project.
+  The comments in this file explain the structure of the page in easy words.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Location</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <!-- Protected header (logout + user meta) -->
+  <header>
+    <div class="brand">Spray Records</div>
+    <div class="right">
+      <span id="pageTitle"></span>
+      <span id="userMeta"></span>
+      <button class="secondary" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <nav>
+        <a href="operator-dashboard.html">Dashboard</a>
+        <a href="operator-new-record.html">New Record</a>
+        <a href="operator-records.html">My Records</a>
+      </nav>
+
+      <section style="flex:1">
+        <h2>Select Location</h2>
+<div class="notice">
+  <div><b>Simple map input (HTML/JS):</b> enter coordinates or click "Use my location".</div>
+  <div class="small">Tip: you can paste coordinates from Google Maps. This keeps the project in pure HTML/CSS/JS.</div>
+</div>
+
+<div id="msg" class="notice error" style="display:none;margin-top:10px"></div>
+
+<div class="card" style="margin-top:10px">
+  <div class="grid2">
+    <div>
+      <div class="small">Latitude *</div>
+      <input id="lat" placeholder="50.4452" />
+    </div>
+    <div>
+      <div class="small">Longitude *</div>
+      <input id="lng" placeholder="-104.6189" />
+    </div>
+    <div>
+      <div class="small">Location Description (optional)</div>
+      <input id="locationText" placeholder="e.g., North lot near entrance" />
+    </div>
+    <div>
+      <div class="small">OpenStreetMap Link</div>
+      <a id="osm" target="_blank" class="small" href="#">Open location in map</a>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <button class="secondary" id="btnGeo">Use my location</button>
+    <button class="secondary" id="btnBack">← Back</button>
+    <button id="btnSave">Save Location</button>
+  </div>
+</div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Shared helpers -->
+  <script src="assets/app.js"></script>
+  <!-- Page script -->
+  <script src="assets/operator-map.js"></script>
+</body>
+</html>
