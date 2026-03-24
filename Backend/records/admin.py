@@ -13,7 +13,7 @@ from records.models import User, SprayRecord, AuditLog
 #Register the User model with the admin site 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin): 
-    #THe columns shown in the list view of the admin site 
+    #The columns shown in the list view of the admin site 
     list_display = ("email", "role", "created_at")
 
     #Sidebar filters for the list view

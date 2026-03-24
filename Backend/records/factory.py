@@ -27,10 +27,10 @@ logger = logging.getLogger("records")
 #User Factory 
 #Hopefully the view will be able to call this factory and gets back the correct type of user 
 #without needing to know the details of how the user is created or what type it is.
-class UserFactoy: 
+class UserFactory: 
     """
-    Factory for creatin user objects 
-    THis factory will deal with all creation logic in one place 
+    Factory for creating user objects 
+    This factory will deal with all creation logic in one place 
         - Password hashing through bcrypt
         - Role validation 
         - Selecting the right concrete user class 
@@ -76,7 +76,7 @@ class UserFactoy:
         
         #Next is to fire the observer events 
         #WE import here to avoid cicular imports
-        from records.observers import spray_record_subject
+        from records.observer import spray_record_subject
         spray_record_subject.set_state({
             "event": "user_created",
             "user_id": str(user.id),
@@ -89,8 +89,8 @@ class UserFactoy:
 ###################################################################################################################################################################
 
 #Spray Record Factory
-#Will create spray record objects and dela with the polygon stuff. 
-#Technically not really a factory since there is only one type of spray record, bus all logic related to creating spray records will be in this class.
+#Will create spray record objects and deal with the polygon stuff. 
+#Technically not really a factory since there is only one type of spray record, but all logic related to creating spray records will be in this class.
 class SprayRecordFactory:
     """
     This will handle all the logic for spray records:
@@ -106,7 +106,7 @@ class SprayRecordFactory:
         """
         Finds the center point of a polygon 
 
-        WIll use the average value of lat and lng to find a center point. 
+        Will use the average value of lat and lng to find a center point. 
 
         Can store this in the database so the frontend can show a map marker quickly. 
         """
@@ -119,8 +119,8 @@ class SprayRecordFactory:
         total_lng = sum(point['lng'] for point in polygon)
         count = len(polygon)
 
-        #THen return average 
-        return round(total_lat / count, 6), round(total_lng / count, 6) #rounding to 6 decimal palces seems to be the norm when looking online 
+        #Then return average 
+        return round(total_lat / count, 6), round(total_lng / count, 6) #rounding to 6 decimal places seems to be the norm when looking online 
     
     @staticmethod
     def validate_polygon(polygon: list):
@@ -152,9 +152,10 @@ class SprayRecordFactory:
                 )
             
             #Each point needs to have lat and lng keys
-            if 'lat' not in point or 'lng' not in point:
+            missing_keys = [key for key in ['lat', 'lng'] if key not in point]
+            if missing_keys:
                 raise ValueError(
-                    f"Invalid polygon: point {i} is missing lat or lng"
+                    f"Invalid polygon: point {i} is missing {'lat and lng' if len(missing_keys) == 2 else missing_keys[0]}."
                 )
             
             #Need to make sure lat and lng are also numbers 
@@ -169,10 +170,10 @@ class SprayRecordFactory:
     @classmethod
     def create_record (cls, data: dict) -> SprayRecord: 
         """ 
-        Will crete and save a new spray record based on the provided data and return the created record
+        Will create and save a new spray record based on the provided data and return the created record
 
         If this raises a key error then a required field is missing 
-        IF this raises a value error then something is wrong most likely with the polygon
+        If this raises a value error then something is wrong most likely with the polygon
         """
         #First we need to validate the required fields and reject incomplete data
         required_fields = [

@@ -13,7 +13,7 @@ In this file you can also find the product classes for a simple factory design p
 The UserFactory that is in the factory.py file will use an if/elif structure to decide which concrete product 
 to create, kinda like the pizza factory example from our lectures.
 
-The audit log model in this file will act as the observer pattern. The views will not write to the sudit log table directly
+The audit log model in this file will act as the observer pattern. The views will not write to the audit log table directly
 I will try to have the observers in observer.py handle that when we send it update notifications from the spray record.
 
 I think it is also important to highlight some quality requirements that are addressed in this file: 
@@ -50,7 +50,7 @@ class RecordStatus(models.TextChoices):
 class User(models.Model):
     """
     So this is our base user model which will store the other accounts 
-    It will map the the users table in teh schema 
+    It will map the the users table in the schema 
 
     Operator and Admin will inherit from this class 
 
@@ -90,7 +90,7 @@ class User(models.Model):
     )
 
     """
-    Django lets us include a meta clas where we can put settings about a table itself rather than settings about individual columns 
+    Django lets us include a meta class where we can put settings about a table itself rather than settings about individual columns 
     Reference this to think of it as settings on the table as a whole 
     YOU NEED TO USE KEYWORD META
     """ 
