@@ -27,7 +27,7 @@ from django.views.decorators.csrf import csrf_exempt #This lets the frontend sen
 from django.utils.decorators import method_decorator #This lets us use that rule on our classes
 
 from records.models import SprayRecord, AuditLog, RecordStatus
-from records.factory import UserFactoy, SprayRecordFactory
+from records.factory import UserFactory, SprayRecordFactory
 from records.observer import spray_record_subject
 
 logger = logging.getLogger("records")
@@ -63,9 +63,9 @@ def parse_json_request(request):
 @method_decorator(csrf_exempt, name='dispatch') #this is what lets us use this class to handle requests without needing a CSFR token, This makes it easier for the frontend
 class UserCreateView(View):
     """ 
-    This creates a new user accoung 
+    This creates a new user account 
 
-    It will call the USerFactory and the factory will handle the creation.
+    It will call the UserFactory and the factory will handle the creation.
 
     This is the POST /api/users/ 
     """
@@ -85,7 +85,7 @@ class UserCreateView(View):
             logger.info(f"User created: {user.email} with role {user.role}")
 
             #Return user info as JSON 
-            return JsonRepsonse(
+            return JsonResponse(
                 {
                     "id": str(user.id),
                     "email": user.email,
@@ -150,7 +150,7 @@ class RecordListCreateView(View):
         THe admin can use this to search and filter historical records.
         """
         #Start with all records, have the newest ones first
-        records = SPrayRecord.objects.all().order_by("-created_at")
+        records = SprayRecord.objects.all().order_by("-created_at")
 
         #Then the filters 
         #THe filters only work if the query is present in the URL
