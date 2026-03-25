@@ -20,13 +20,18 @@ I guess it would be helpful to show some of the API endpoints that we have creat
 #imports and whatnot 
 import json
 import logging 
+import bcrypt
+import jwt
+
+from datetime import datetime, timedelta, timezone  # For token generation
+from django.conf import settings
 
 from django.http import JsonResponse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt #This lets the frontend send JSON requests without a security token
 from django.utils.decorators import method_decorator #This lets us use that rule on our classes
 
-from records.models import SprayRecord, AuditLog, RecordStatus
+from records.models import User, SprayRecord, AuditLog, RecordStatus
 from records.factory import UserFactory, SprayRecordFactory
 from records.observer import spray_record_subject
 
@@ -59,8 +64,104 @@ def parse_json_request(request):
 
 ########################################################################################################################################################################################
 
-#User views 
+# Auth views
 @method_decorator(csrf_exempt, name='dispatch') #this is what lets us use this class to handle requests without needing a CSFR token, This makes it easier for the frontend
+class AuthSeedView(View):
+    """
+    This seeds the database with an initial demo user
+
+    Calls the UserFactory for each of the demo users
+
+    This is the POST /api/auth/seed
+    """
+    def post(self, request):
+        # Demo users from login.html
+        demo_users = [
+            {"role": "OPERATOR", "email": "operator@test.com", "password": "pass123"},
+            {"role": "ADMIN", "email": "admin@test.com", "password": "pass123"}
+        ]
+
+        for demo_user in demo_users:
+            # Create the demo user only if it does not already exist
+            if not User.objects.filter(email=demo_user["email"]).exists():
+                try:
+                    user = UserFactory.create_user(
+                        role=demo_user["role"],
+                        email=demo_user["email"],
+                        password=demo_user["password"],
+                    )
+
+                    logger.info(f"Demo user created: {user.email} with role {user.role}")
+
+                # Just using a blanket except since most errors shouldn't be a concern with demo_user values being hard coded
+                except Exception as e:
+                    logger.error("Error creating user: %s", str(e))
+                    return JsonResponse(
+                        {"error": "An error occurred while seeding the demo users"},
+                        status=500,
+                    )
+         # Success if demo users already existed or if the demo users were newly created
+        return JsonResponse(
+            {"message": "Demo users have been checked/created successfully."},
+            status=200, # General success status code
+        )
+    
+@method_decorator(csrf_exempt, name='dispatch') #this is what lets us use this class to handle requests without needing a CSFR token, This makes it easier for the frontend
+class AuthLoginView(View):
+    def post(self, request):
+        data, error = parse_json_request(request)
+        if error:
+            return error
+        
+        # Get login info
+        email = data.get("email", "").strip()   # Use strip in case there was leading or trailing whitespace
+        password = data.get("password", "")
+
+        # Check for missing field
+        if not email or not password:
+            return JsonResponse(
+                {"error": "Email and password are both required."},
+                status=400  # Missing one of the fields
+            )
+        
+        # Check if the user exists
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"error": "Invalid email or password"},     # Standard to not specify which one is invalid for security reasons
+                status=401  # invalid credentials
+            )
+        
+        # Check entered password against actual user password
+        correct_password = bcrypt.checkpw(
+            password.encode("utf-8"),   # Change to bytes so that bcrypt can work with it
+            user.password_hash.encode("utf-8"),
+        )
+        if not correct_password:
+            return JsonResponse(
+                {"error": "Invalid email or password"},
+                status=401
+            )
+        
+        # Metadata about the token
+        payload = {
+            "sub": str(user.id),
+            "email": user.email
+        }
+        token = 
+
+
+        
+
+
+
+
+
+########################################################################################################################################################################################
+
+#User views 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserCreateView(View):
     """ 
     This creates a new user account 
@@ -118,7 +219,7 @@ class UserCreateView(View):
                     {"error": "A user with that email already exists"},
                     status=400,
                 )
-            logger.error(f"Error creating user: %s", str(e))
+            logger.error("Error creating user: %s", str(e))
             return JsonResponse(
                 {"error": "An error occurred while creating the user"},
                 status=500, #this status code means "Internal Server Error" kind of a catch all for other errors that we didn't anticipate
@@ -456,7 +557,7 @@ def serialize_record(record):
 
 def transition_status(record_id, actor_email, expected_from, new_status): 
     """ 
-    This is the function that needs to handle the transtiions of statuses 
+    This is the function that needs to handle the transitions of statuses 
 
     Needs to validate the transition and update, then let the observers know 
     """

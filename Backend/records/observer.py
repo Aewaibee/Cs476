@@ -103,7 +103,7 @@ class Subject (ABC):
                 observer.__class__.__name__,
             )
     
-    def notify (self, dat: dict): 
+    def notify (self, data: dict): 
         """ 
         This will notify all the registered observers by calling their update()
         I want it to loop through the observer list and call update(data) on each 

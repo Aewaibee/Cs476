@@ -126,7 +126,7 @@ class OperatorUser(User):
         - Create a new spray record 
         - Edit a draft record 
         - submit records for an admin to review 
-        - View thier own records 
+        - View their own records 
     """ 
     class Meta: 
         #So here when proxy is true it will use the same users table instead of creating a new table 
@@ -164,24 +164,24 @@ class AdminUser(User):
         - Approve records 
         -Flag records that have issues 
         - View the map 
-""" 
-class Meta: 
-    proxy = True 
+    """ 
+    class Meta: 
+        proxy = True 
 
-def get_permissions(self): 
-    #Return what the admin is allowed to do 
-    return[
-        "view_all_records",
-        "search_records",
-        "approve_record",
-        "flag_record",
-        "view_map",
-    ]
+    def get_permissions(self): 
+        #Return what the admin is allowed to do 
+        return[
+            "view_all_records",
+            "search_records",
+            "approve_record",
+            "flag_record",
+            "view_map",
+        ]
 
-def save(self, *args, **kwargs):
-    #Make sure to set role to admin 
-    self.Role = UserRole.ADMIN
-    super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        #Make sure to set role to admin 
+        self.role = UserRole.ADMIN
+        super().save(*args, **kwargs)
 
 #######################################################################################################################################
 
@@ -274,12 +274,12 @@ class SprayRecord(models.Model):
         blank = True,
     )
 
-    #We need to store teh status as well, and make sure it defaults to a draft when it is created 
+    #We need to store the status as well, and make sure it defaults to a draft when it is created 
     status = models.CharField(
         max_length = 10, 
         choices = RecordStatus.choices, 
         default = RecordStatus.DRAFT, 
-        db_index = True, #Ive seen in examples that this can speed up filtering by different categories, in this case by status
+        db_index = True, #I've seen in examples that this can speed up filtering by different categories, in this case by status
     )
 
     #Add a timestamp for when... Online it says Django manages these 
@@ -308,7 +308,7 @@ class AuditLog(models.Model):
     This will record important actions like status changes 
     This will map to the audit logs table 
 
-    This tbale will be populated by the observer pattern. 
+    This table will be populated by the observer pattern. 
     When a spray record has a status change, the observer in the observer.py file will be able to create a new row here. 
     The viewers will never write to this table directly since we want to use an observer pattern in our project 
     """ 

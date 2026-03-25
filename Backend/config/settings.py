@@ -40,6 +40,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") #Altered to load from .env and split into a list
 
+# JWT settings
+JWT_SECRET = os.environ.get("JWT_SECRET", SECRET_KEY)   # Use django secret key as a backup
+JWT_ALGORITHM = "HS256"
+JWT_EXP_MINUTES=120
+
 
 # Application definition
 # First 6 are the built in Django apps, and the last one is our app 

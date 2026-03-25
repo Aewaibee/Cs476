@@ -7,6 +7,8 @@ THis is in a separate file to show more decoupling
 """
 from django.urls import path
 from records.views import (
+    AuthSeedView,
+    AuthLoginView,
     UserCreateView,
     RecordListCreateView,
     RecordDetailView,
@@ -17,6 +19,8 @@ from records.views import (
 )
 
 urlpatterns = [
+    path("auth/seed/", AuthSeedView.as_view(), name='auth-seed'),
+    path("auth/login/", AuthLoginView.as_view(), name='auth-login'),
     path('users/', UserCreateView.as_view(), name='user-create'),
     path('records/', RecordListCreateView.as_view(), name='record-list-create'),
     path("records/<uuid:record_id>/", RecordDetailView.as_view(), name="record-detail"),
