@@ -9,7 +9,7 @@
  */
 
 // Backend API base (edit if your backend runs elsewhere)
-const API_BASE = "http://localhost:4000";
+const API_BASE = "http://127.0.0.1:8000/api";
 
 // ---------------------------
 // Local storage helpers
@@ -26,6 +26,31 @@ function setAuth(token, user){
 function clearAuth(){
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+}
+
+// ---------------------------
+// Offline draft helpers
+// ---------------------------
+function setPendingSprayRecord(payload) {
+  localStorage.setItem("pending_spray_record", JSON.stringify(payload));
+}
+
+// Check if there is currently a draft that is pending
+function getPendingSprayRecord() {
+  try {
+    const raw = localStorage.getItem("pending_spray_record");
+    if (!raw) return null;  // no pending record
+    const parsed = JSON.parse(raw);
+    // Return the parsed object if it is parsed properly and is an object
+    return parsed && typeof parsed === "object" ? parsed : null
+  }
+  catch (_) {
+    return null;  // Some error while parsing
+  }
+}
+
+function clearPendingSprayRecord() {
+  localStorage.removeItem("pending_spray_record")
 }
 
 
