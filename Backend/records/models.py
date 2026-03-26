@@ -54,7 +54,7 @@ class User(models.Model):
 
     Operator and Admin will inherit from this class 
 
-    I think i figured out how to properly store passwords as hashes so the password is never saved to the databse 
+    I think i figured out how to properly store passwords as hashes so the password is never saved to the database 
     """
 
     #UUID primary key will match the char(36) in the schema 
@@ -100,7 +100,7 @@ class User(models.Model):
     
     def __str__(self): 
         #implemented to be able to view an object in text 
-        #Or how this user will appear in print statemtns and to the admin 
+        #Or how this user will appear in print statements and to the admin 
         return f"{self.email} ({self.role})"
     
     def get_permissions(self):

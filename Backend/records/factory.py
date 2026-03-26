@@ -224,7 +224,7 @@ class SprayRecordFactory:
         spray_record_subject.set_state({
             "event": "record_created",
             "record_id": str(record.id),
-            "operator_email": data["operator_email"],
+            "actor_email": data["operator_email"],
         })
 
         return record

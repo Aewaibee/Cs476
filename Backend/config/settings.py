@@ -20,6 +20,7 @@ To differentitate between what was auto-generated and what was added by us, I ha
 import os                   #Added
 from pathlib import Path
 from dotenv import load_dotenv #Added
+from datetime import timedelta  #Added
 
 #To load the environment variables from the .env file we do.... 
 load_dotenv() #Added
@@ -43,7 +44,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").sp
 # JWT settings
 JWT_SECRET = os.environ.get("JWT_SECRET", SECRET_KEY)   # Use django secret key as a backup
 JWT_ALGORITHM = "HS256"
-JWT_EXP_MINUTES=120
+JWT_EXP_MINUTES=int(os.environ.get("JWT_EXP_MINUTES", 60))
 
 
 # Application definition

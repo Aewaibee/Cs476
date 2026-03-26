@@ -144,19 +144,39 @@ class AuthLoginView(View):
                 status=401
             )
         
+        # Used for determining when the token expires
+        now = datetime.now(timezone.utc)
+        exp = now + timedelta(minutes=settings.JWT_EXP_MINUTES)
+        
         # Metadata about the token
         payload = {
-            "sub": str(user.id),
-            "email": user.email
+            "sub": str(user.id),    # ID field in token payload
+            "email": user.email,
+            "role": user.role,
+            "exp": int(exp.timestamp()),
         }
-        token = 
 
+        # Create the token
+        token = jwt.encode(
+            payload,
+            settings.JWT_SECRET,
+            algorithm=settings.JWT_ALGORITHM,
+        )
 
+        logger.info("User logged in: %s (%s)", user.email, user.role)
+
+        return JsonResponse(
+            {
+                "token": token,
+                "user": {
+                    "id": str(user.id),
+                    "email": user.email,
+                    "role": user.role,
+                },
+            },
+            status=200,
+        )
         
-
-
-
-
 
 ########################################################################################################################################################################################
 
@@ -171,6 +191,11 @@ class UserCreateView(View):
     This is the POST /api/users/ 
     """
     def post(self, request):
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+
         #Handle post request to create a new user
         data, error = parse_json_request(request)
         if error:
@@ -235,7 +260,7 @@ class RecordListCreateView(View):
     POST /api/records/              - Create a new record
     GET /api/records/               - List records (with filtering)
 
-    ALso will handle filtering here are the parameters for that:
+    Also will handle filtering here are the parameters for that:
         ?status=DRAFT                      Filter by workflow status
         ?operator_email=op@example.com    Filter by operator
         ?date_from=2021-01-01               Records on or after this date
@@ -248,8 +273,13 @@ class RecordListCreateView(View):
         """
         List all spray records with the optional filters 
 
-        THe admin can use this to search and filter historical records.
+        The admin can use this to search and filter historical records.
         """
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+
         #Start with all records, have the newest ones first
         records = SprayRecord.objects.all().order_by("-created_at")
 
@@ -265,7 +295,7 @@ class RecordListCreateView(View):
         #Filter by who created a record 
         operator = request.GET.get("operator_email")
         if operator:
-            records = records.filter(operator__email=operator)
+            records = records.filter(operator_email=operator)
         
         #filter by a date range 
         #__gte means "greater than or equal to" and __lte means "less than or equal to" if needed both, thanks geeks for geeks! 
@@ -315,6 +345,11 @@ class RecordListCreateView(View):
         """
         This will create a new spray record using the SprayRecordFactory
         """
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+
         #parse the JSON
         data, error = parse_json_request(request)
         if error:
@@ -360,6 +395,11 @@ class RecordDetailView(View):
         """
         Retrieve a specific record by ID 
         """
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+        
         try:
             record = SprayRecord.objects.get(id=record_id)
             return JsonResponse(serialize_record(record), status=200)
@@ -377,6 +417,11 @@ class RecordDetailView(View):
 
         also need to notify observers when updated 
         """
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+
         #parse the JSON
         data, error = parse_json_request(request)
         if error:
@@ -398,7 +443,7 @@ class RecordDetailView(View):
                 status=400,
             )
         
-        #THen can update 
+        #Then can update 
         #only change fields that were in the request 
         editable_fields = [
             "product_name", "pcp_act_number", "chemical_volume_l", "water_volume_l", 
@@ -436,6 +481,8 @@ class RecordDetailView(View):
             "actor_email" : data.get("actor_email", record.operator_email),
         })
 
+        return JsonResponse(serialize_record(record), status=200)
+
 ########################################################################################################################################################################################
 
 #Workflow view 
@@ -447,6 +494,11 @@ class RecordSubmitView(View):
     POST /api/records/<id>/submit/ - Submit a specific record (a draft one) for review
     """
     def post(self, request, record_id):
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+        
         data, _ = parse_json_request(request) #we dont actually need to parse any data for this one, but we can get the actor email if they sent it for the observer log
         actor_email = data.get("actor_email", "") if data else "unknown"
 
@@ -465,6 +517,15 @@ class RecordApproveView(View):
     Must be an admin reviewing a submitted record 
     """
     def post(self, request, record_id):
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+        
+        # Ensure that the user is an admin
+        if payload.get("role") != "ADMIN":
+            return JsonResponse({"error": "Admin role required"}, status=403)
+        
         data, _ = parse_json_request(request) #we dont actually need to parse any data for this one, but we can get the actor email if they sent it for the observer log
         actor_email = data.get("actor_email", "") if data else "unknown"
 
@@ -483,6 +544,15 @@ class RecordFlagView(View):
     Must be an admin reviewing a submitted record and deciding it needs more work or something is wrong with it 
     """
     def post(self, request, record_id):
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+        
+        # Ensure that the user is an admin
+        if payload.get("role") != "ADMIN":
+            return JsonResponse({"error": "Admin role required"}, status=403)
+        
         data, _ = parse_json_request(request) #we dont actually need to parse any data for this one, but we can get the actor email if they sent it for the observer log
         actor_email = data.get("actor_email", "") if data else "unknown"
 
@@ -505,6 +575,15 @@ class RecordAuditLogView(View):
     This will be useful for admins to review the history of a record and for transparency. 
     """
     def get(self, request, record_id):
+        # Check authentication
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error
+        
+        # Ensure that the user is an admin
+        if payload.get("role") != "ADMIN":
+            return JsonResponse({"error": "Admin role required"}, status=403)
+        
         #get all audit logs for this record, ordered by most recent first
         logs = AuditLog.objects.filter(record_id=record_id).order_by("-timestamp") 
 
@@ -535,7 +614,7 @@ def serialize_record(record):
 
     This is used in the views to return record data in the API responses. 
 
-    SHould be easy peasy 
+    Should be easy peasy 
     """
     return {
         "id": str(record.id),
@@ -593,3 +672,35 @@ def transition_status(record_id, actor_email, expected_from, new_status):
     )
 
     return JsonResponse(serialize_record(record), status=200)
+
+def get_auth_payload(request):
+    # Check for auth header
+    auth = request.headers.get("Authorization", "")
+    # Header format (specified in the frontend) is "Bearer " + <token>
+    header_parts = auth.split(None, 1) # Split once on the whitespace
+
+    if len(header_parts) != 2 or header_parts[0].lower() != "bearer":
+        return None, JsonResponse(
+            {"error": "Authorization header missing or invalid"}, 
+            status=401
+        )
+    
+    # Get token from header
+    token = header_parts[1].strip()
+
+    try:
+        # Get payload from the token (also checks if it is valid)
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
+        # Return the token contents and no error
+        return payload, None
+    except jwt.ExpiredSignatureError:
+        return None, JsonResponse({"error": "Token has expired"}, status=401)
+    except jwt.InvalidTokenError:
+        return None, JsonResponse({"error": "Invalid token"}, status=401)
+    except Exception as e:
+        logger.error("Error decoding token: %s", str(e))
+        return None, JsonResponse({"error": "An error occurred while decoding the token"}, status=500)  # General unexpected exception

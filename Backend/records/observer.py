@@ -193,7 +193,7 @@ class AuditLogObserver(Observer):
     The views can just call subject.set_state() and this should handle the rest of it. 
     """ 
 
-    def __inti__(self):
+    def __init__(self):
         """ 
         Initialize the observers state 
         """
@@ -206,7 +206,7 @@ class AuditLogObserver(Observer):
         """ 
 
         #Have to import here to stop circular importing 
-        from records.models import AuditLogObserver
+        from records.models import AuditLog
 
         #Update the internal state of the observer 
         self._observer_state = data 
