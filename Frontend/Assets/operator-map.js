@@ -21,7 +21,8 @@ function showErr(msg) {
 function clearErr() { q("msg").style.display = "none"; }
 
 ///////////////////////////////////////////////////////////////////////////
-const map = L.map('operatorMap').setView([50.4452, -104.6189], 13);
+const DEFAULT_VIEW = [[50.4452, -104.6189], 13];
+const map = L.map('operatorMap').setView(DEFAULT_VIEW[0], DEFAULT_VIEW[1]);
 
 const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -75,6 +76,19 @@ function getCenterCoords(layer) {
   return { lat: centerLat, lng: centerLng };
 }
 
+// Make a small polygon around a point
+function makePolyFromPoint(lat, lng) {
+  // Used to make a small square around the entered coordinates (keeps it as a polygon)
+  const polyOffset = 0.0002; // small visible box on the map
+  const newPoly = [
+    { lat: lat + polyOffset, lng: lng + polyOffset },
+    { lat: lat + polyOffset, lng: lng - polyOffset },
+    { lat: lat - polyOffset, lng: lng - polyOffset },
+    { lat: lat - polyOffset, lng: lng + polyOffset }
+  ];
+  return newPoly;
+}
+
 // Load existing polygon if one exists
 (async function loadExistingPolygon() {
   try {
@@ -86,6 +100,12 @@ function getCenterCoords(layer) {
       const layer = L.polygon(polygonCoords.map(coord => [coord.lat, coord.lng]));
       drawnItems.addLayer(layer);
       map.fitBounds(layer.getBounds());
+      // Change the toolbar to edit/delete only if there is already a polygon
+      try {
+        drawControlFull.remove();
+        drawControlEdit.addTo(map);
+      }
+      catch (e) {}
     }
     // Get the calculated center points from backend
     const centerLat = rec.geometry_center_lat;
@@ -93,7 +113,7 @@ function getCenterCoords(layer) {
     if (centerLat != null && centerLng != null) {
       q("lat").value = Number(centerLat).toFixed(6);
       q("lng").value = Number(centerLng).toFixed(6);
-      updateOSM();
+      updateOSM(true);
     }
   } catch (err) {
   }
@@ -119,7 +139,7 @@ map.on("draw:created", function(e) {
   const center = getCenterCoords(layer);
   q("lat").value = center.lat.toFixed(6);
   q("lng").value = center.lng.toFixed(6);
-  updateOSM();
+  updateOSM(true);
 
   console.log(layer.getLatLngs()[0]);
 });
@@ -131,7 +151,7 @@ map.on("draw:edited", function(e) {
     const center = getCenterCoords(layer);
     q("lat").value = center.lat.toFixed(6);
     q("lng").value = center.lng.toFixed(6);
-    updateOSM();
+    updateOSM(true);
   }
   
   // const center = getCenterCoords(layer);
@@ -150,23 +170,49 @@ map.on("draw:deleted", function(e) {
   // Update lat/lng fields and OSM link when polygon is deleted
   q("lat").value = "";
   q("lng").value = "";
-  updateOSM();
+  updateOSM(false);
 });
 ///////////////////////////////////////////////////////////////////////////
 
 /*
  * Update the OpenStreetMap link to help the user verify coordinates.
  */
-function updateOSM() {
+function updateOSM(fromPolygon = false) {
   const lat = q("lat").value.trim();
   const lng = q("lng").value.trim();
   const a = q("osm");
   if (lat && lng) {
     a.href = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(lat)}&mlon=${encodeURIComponent(lng)}#map=16/${encodeURIComponent(lat)}/${encodeURIComponent(lng)}`;
     a.textContent = a.href;
-  } else {
+
+    const latNum = Number(lat);
+    const lngNum = Number(lng);
+
+    if (!fromPolygon) {
+      // Make sure to clear any existing layers before adding the new (calculated) one
+      if (drawnItems.getLayers().length > 0) drawnItems.clearLayers();
+      const layer = L.polygon(makePolyFromPoint(latNum, lngNum));
+
+      // Add the layer and recenter
+      drawnItems.addLayer(layer);
+      map.fitBounds(layer.getBounds());
+
+      // Swap the toolbars
+      drawControlFull.remove();
+      drawControlEdit.addTo(map);
+    }
+    
+  } 
+  else {
     a.href = "#";
     a.textContent = "Enter coordinates first";
+
+    // If one of the coordinates was removed, remove the polygon from the map
+    if (drawnItems.getLayers().length > 0) drawnItems.clearLayers();
+    console.log(drawnItems.getLayers().length);
+    drawControlEdit.remove();
+    drawControlFull.addTo(map);
+    map.setView(DEFAULT_VIEW[0], DEFAULT_VIEW[1]);
   }
 }
 
@@ -179,22 +225,36 @@ function useGeo() {
   navigator.geolocation.getCurrentPosition((pos) => {
     q("lat").value = pos.coords.latitude.toFixed(6);
     q("lng").value = pos.coords.longitude.toFixed(6);
-    updateOSM();
+    updateOSM(false);
   }, () => showErr("Could not get location (permission denied)."));
 }
 
 async function saveLocation() {
   clearErr();
   try {
-    const lat = Number(q("lat").value);
-    const lng = Number(q("lng").value);
+    const lat_raw = q("lat").value;
+    const lng_raw = q("lng").value;
+    const lat = Number(lat_raw);
+    const lng = Number(lng_raw);
+    if (lat_raw.trim() === "" || lng_raw.trim() === "") throw new Error("Latitude and Longitude are required.");
     if (Number.isNaN(lat) || Number.isNaN(lng)) throw new Error("Latitude/Longitude must be numbers.");
     const locationText = q("locationText").value.trim() || undefined;
 
     const layers = drawnItems.getLayers();
-    if (layers.length === 0) throw new Error("Please draw a polygon on the map.");
-    const layer = layers[0];
-    const polygonCoords = layer.getLatLngs()[0];
+    let polygonCoords = null;
+
+    // If there is a drawn polygon, use it. Otherwise, make a small polygon around the inputted lat and lng
+    if (layers.length > 0) {
+      console.log(layers.length);
+      const layer = layers[0];
+      polygonCoords = layer.getLatLngs()[0];
+    }
+    else {
+      console.log(lat, lng);
+      if (Number.isNaN(Number(lat)) || Number.isNaN(Number(lng))) throw new Error("Please draw a polygon or enter coordinates.");
+      // Used to make a small square around the entered coordinates (keeps it as a polygon)
+      polygonCoords = makePolyFromPoint(lat, lng);
+    }
 
 
     // Get the current operator
@@ -224,10 +284,8 @@ async function saveLocation() {
   } catch (e) { showErr(e.message); }
 }
 
-q("lat").addEventListener("input", updateOSM);
-q("lng").addEventListener("input", updateOSM);
+q("lat").addEventListener("input", () => updateOSM(false));
+q("lng").addEventListener("input", () => updateOSM(false));
 q("btnGeo").addEventListener("click", useGeo);
 q("btnBack").addEventListener("click", () => history.back());
 q("btnSave").addEventListener("click", saveLocation);
-
-updateOSM();

@@ -52,6 +52,17 @@ function showRecordOnMap(record) {
   tbody.addEventListener("click", function(e) {
     // Make sure that you are getting the table row
     const tr = e.target.closest("tr");
+
+    // Remove highlight from previously selected row
+    const selectedRow = tbody.querySelector(".select-row");
+    if (selectedRow) {
+      selectedRow.classList.remove("select-row");
+    }
+
+    // Highlight the selected row
+    tr.classList.add("select-row");
+
+
     const id = tr.dataset.id;
     // Search for the record matching the row's id
     const rec = rows.find(r => String(r.id) === String(id));
