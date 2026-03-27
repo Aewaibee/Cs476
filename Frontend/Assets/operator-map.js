@@ -20,6 +20,140 @@ function showErr(msg) {
 }
 function clearErr() { q("msg").style.display = "none"; }
 
+///////////////////////////////////////////////////////////////////////////
+const map = L.map('operatorMap').setView([50.4452, -104.6189], 13);
+
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+})
+osm.addTo(map);
+
+const drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+// Draw controls for when nothing has been drawn yet (only allow polygon)
+const drawControlFull = new L.Control.Draw({
+  draw: {
+    polyline: false,
+    polygon: true,
+    circle: false,
+    rectangle: false,
+    marker: false,
+    circlemarker: false
+  },
+  edit: {
+    featureGroup: drawnItems
+  }
+});
+
+// Only keep edit and delete when there is an existing polygon (only allow one at a time)
+const drawControlEdit = new L.Control.Draw({
+  draw: false,
+  edit: {
+    featureGroup: drawnItems
+  }
+});
+
+// Add the initial control
+map.addControl(drawControlFull);
+
+//
+// Map Function
+//
+
+// Helper function to get center coordinates from polygon to display in lat/lng fields
+function getCenterCoords(layer) {
+  const latlngs = layer.getLatLngs()[0];
+  let latSum = 0;
+  let lngSum = 0;
+  latlngs.forEach(latlng => {
+    latSum += latlng.lat;
+    lngSum += latlng.lng;
+  });
+  const centerLat = latSum / latlngs.length;
+  const centerLng = lngSum / latlngs.length;
+  return { lat: centerLat, lng: centerLng };
+}
+
+// Load existing polygon if one exists
+(async function loadExistingPolygon() {
+  try {
+    const rec = await apiFetch(`/records/${encodeURIComponent(id)}/`);
+    if (!rec) return;
+    // Use polygon from backend if one existed
+    const polygonCoords = rec.geometry_polygon;
+    if (polygonCoords) {
+      const layer = L.polygon(polygonCoords.map(coord => [coord.lat, coord.lng]));
+      drawnItems.addLayer(layer);
+      map.fitBounds(layer.getBounds());
+    }
+    // Get the calculated center points from backend
+    const centerLat = rec.geometry_center_lat;
+    const centerLng = rec.geometry_center_lng;
+    if (centerLat != null && centerLng != null) {
+      q("lat").value = Number(centerLat).toFixed(6);
+      q("lng").value = Number(centerLng).toFixed(6);
+      updateOSM();
+    }
+  } catch (err) {
+  }
+}) ();
+
+
+//
+// Map event handlers
+//
+
+map.on("draw:created", function(e) {
+  const layer = e.layer;
+
+  // Make sure to clear any existing layers before adding the new one
+  if (drawnItems.getLayers().length > 0) drawnItems.clearLayers();
+  drawnItems.addLayer(layer);
+
+  // Swap the toolbars
+  drawControlFull.remove();
+  drawControlEdit.addTo(map);
+
+  // Show center coordinates in lat and long fields
+  const center = getCenterCoords(layer);
+  q("lat").value = center.lat.toFixed(6);
+  q("lng").value = center.lng.toFixed(6);
+  updateOSM();
+
+  console.log(layer.getLatLngs()[0]);
+});
+
+map.on("draw:edited", function(e) {
+  const layers = drawnItems.getLayers();
+  if (layers.length > 0) {
+    const layer = layers[0];
+    const center = getCenterCoords(layer);
+    q("lat").value = center.lat.toFixed(6);
+    q("lng").value = center.lng.toFixed(6);
+    updateOSM();
+  }
+  
+  // const center = getCenterCoords(layer);
+  // q("lat").value = center.lat.toFixed(6);
+  // q("lng").value = center.lng.toFixed(6);
+  // updateOSM();
+});
+
+map.on("draw:deleted", function(e) {
+  // Re-enable drawing when polygon is deleted
+  if (drawnItems.getLayers().length === 0) {
+    drawControlEdit.remove();
+    drawControlFull.addTo(map);
+  }
+
+  // Update lat/lng fields and OSM link when polygon is deleted
+  q("lat").value = "";
+  q("lng").value = "";
+  updateOSM();
+});
+///////////////////////////////////////////////////////////////////////////
+
 /*
  * Update the OpenStreetMap link to help the user verify coordinates.
  */

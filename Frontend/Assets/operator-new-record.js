@@ -19,11 +19,11 @@ function clearMsg() { q("msg").style.display = "none"; }
 // Get all the current form values
 function getCurrentFormState() {
   return {
-    dateApplied: q("dateApplied").value,
-    productName: q("productName").value,
-    pcpActNumber: q("pcpActNumber").value,
-    chemicalVolumeL: q("chemicalVolumeL").value,
-    waterVolumeL: q("waterVolumeL").value,
+    date_applied: q("dateApplied").value,
+    product_name: q("productName").value,
+    pcp_act_number: q("pcpActNumber").value,
+    chemical_volume_l: q("chemicalVolumeL").value,
+    water_volume_l: q("waterVolumeL").value,
     notes: q("notes").value,
   };
 }
@@ -37,11 +37,11 @@ function autosavePendingRecord() {
 const pending = getPendingSprayRecord();
 // Fill in the info if there was a pending spray record
 if (pending) {
-  q("dateApplied").value = pending.dateApplied || "";
-  q("productName").value = pending.productName || "";
-  q("pcpActNumber").value = pending.pcpActNumber || "";
-  q("chemicalVolumeL").value = pending.chemicalVolumeL || "";
-  q("waterVolumeL").value = pending.waterVolumeL || "";
+  q("dateApplied").value = pending.date_applied || "";
+  q("productName").value = pending.product_name || "";
+  q("pcpActNumber").value = pending.pcp_act_number || "";
+  q("chemicalVolumeL").value = pending.chemical_volume_l || "";
+  q("waterVolumeL").value = pending.water_volume_l || "";
   q("notes").value = pending.notes || "";
   showMsg("Loaded locally saved draft.");
 }

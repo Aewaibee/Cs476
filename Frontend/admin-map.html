@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Map</title>
   <link rel="stylesheet" href="Assets/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 
 <body>
@@ -30,7 +31,7 @@
         <div class="notice">
           This page lists records that have coordinates (lat/lng). Click a row to open OpenStreetMap.
         </div>
-
+        <div id="adminMap" class="card" style="height:400px; margin-top:10px"></div>
         <table class="table" id="tbl" style="margin-top:10px">
           <thead>
             <tr>
@@ -48,6 +49,7 @@
       </section>
     </div>
   </main>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="Assets/app.js"></script>
   <script src="Assets/admin-map.js"></script>
 </body>
