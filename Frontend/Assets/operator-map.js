@@ -35,8 +35,6 @@ function updateOSM() {
     a.textContent = "Enter coordinates first";
   }
 }
-q("lat").addEventListener("input", updateOSM);
-q("lng").addEventListener("input", updateOSM);
 
 function useGeo() {
   clearErr();
@@ -59,6 +57,12 @@ async function saveLocation() {
     if (Number.isNaN(lat) || Number.isNaN(lng)) throw new Error("Latitude/Longitude must be numbers.");
     const locationText = q("locationText").value.trim() || undefined;
 
+    const layers = drawnItems.getLayers();
+    if (layers.length === 0) throw new Error("Please draw a polygon on the map.");
+    const layer = layers[0];
+    const polygonCoords = layer.getLatLngs()[0];
+
+
     // Get the current operator
     const user = getUser();
     // Fetch the operator's records and find matching one
@@ -69,22 +73,25 @@ async function saveLocation() {
 
     // Normalize DB row names if needed
     const payload = {
+      operator_email : user.email,
       id: rec.id,
-      dateApplied: rec.date_applied ?? rec.dateApplied,
-      productName: rec.product_name ?? rec.productName,
-      pcpActNumber: rec.pcp_act_number ?? rec.pcpActNumber,
-      chemicalVolumeL: Number(rec.chemical_volume_l ?? rec.chemicalVolumeL),
-      waterVolumeL: Number(rec.water_volume_l ?? rec.waterVolumeL),
+      date_applied: rec.date_applied ?? rec.dateApplied,
+      product_name: rec.product_name ?? rec.productName,
+      pcp_act_number: rec.pcp_act_number ?? rec.pcpActNumber,
+      chemical_volume_l: Number(rec.chemical_volume_l ?? rec.chemicalVolumeL),
+      water_volume_l: Number(rec.water_volume_l ?? rec.waterVolumeL),
       notes: rec.notes || undefined,
-      locationText,
-      geometry: { lat, lng }
+      location_text: locationText,
+      geometry_polygon: polygonCoords
     };
 
-    await apiFetch("/records/", { method: "POST", body: JSON.stringify(payload) });
+    await apiFetch(`/records/${encodeURIComponent(id)}/`, { method: "PUT", body: JSON.stringify(payload) });
     location.href = `operator-review.html?id=${encodeURIComponent(id)}`;
   } catch (e) { showErr(e.message); }
 }
 
+q("lat").addEventListener("input", updateOSM);
+q("lng").addEventListener("input", updateOSM);
 q("btnGeo").addEventListener("click", useGeo);
 q("btnBack").addEventListener("click", () => history.back());
 q("btnSave").addEventListener("click", saveLocation);

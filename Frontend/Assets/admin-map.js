@@ -3,12 +3,13 @@ setHeader("Map View");
 setNavActive();
 
 (async function () {
-  const rows = await apiFetch("/admin/records/map/");
+  const row_data = await apiFetch("/records/");
+  const rows = row_data.records;
   const tbody = q("tbl").querySelector("tbody");
 
   tbody.innerHTML = rows.map(r => {
-    const lat = Number(r.geometry_lat).toFixed(6);
-    const lng = Number(r.geometry_lng).toFixed(6);
+    const lat = Number(r.geometry_center_lat).toFixed(6);
+    const lng = Number(r.geometry_center_lng).toFixed(6);
     const url = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
     return `
       <tr style="cursor:pointer" onclick="window.open('${url}','_blank')">

@@ -3,7 +3,8 @@ setHeader("Admin Dashboard");
 setNavActive();
 
 (async function(){
-  const rows = await apiFetch("/admin/records/");
+  const row_data = await apiFetch("/records/");
+  const rows = row_data.records;
   const pending = rows.filter(r => r.status === "SUBMITTED").length;
   const flagged = rows.filter(r => r.status === "FLAGGED").length;
 

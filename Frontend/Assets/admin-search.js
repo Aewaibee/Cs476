@@ -38,7 +38,7 @@ async function search() {
 
 /** Approve changes status to APPROVED */
 async function approve(id) {
-  await apiFetch(`/records/${encodeURIComponent(id)}/status`, {
+  await apiFetch(`/records/${encodeURIComponent(id)}/approve/`, {
     method: "POST",
     body: JSON.stringify({ status: "APPROVED" })
   });
@@ -47,7 +47,7 @@ async function approve(id) {
 
 /** Flag changes status to FLAGGED */
 async function flagRec(id) {
-  await apiFetch(`/records/${encodeURIComponent(id)}/status`, {
+  await apiFetch(`/records/${encodeURIComponent(id)}/flag/`, {
     method: "POST",
     body: JSON.stringify({ status: "FLAGGED" })
   });

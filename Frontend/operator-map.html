@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Location</title>
   <link rel="stylesheet" href="Assets/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
 </head>
 
 <body>
@@ -33,6 +35,8 @@
           <div class="small">Tip: you can paste coordinates from Google Maps. This keeps the project in pure
             HTML/CSS/JS.</div>
         </div>
+
+        <div id="map" class="card" style="height:400px; margin-top:10px"></div>
 
         <div id="msg" class="notice error" style="display:none;margin-top:10px"></div>
 
@@ -66,6 +70,87 @@
       </section>
     </div>
   </main>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+
+  <script>
+    var map = L.map('map').setView([50.4452, -104.6189], 13);
+
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    })
+    osm.addTo(map);
+
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    // Draw controls for when nothing has been drawn yet (only allow polygon)
+    var drawControlFull = new L.Control.Draw({
+      draw: {
+        polyline: false,
+        polygon: true,
+        circle: false,
+        rectangle: false,
+        marker: false,
+        circlemarker: false
+      },
+      edit: {
+        featureGroup: drawnItems
+      }
+    });
+
+    // Only keep edit and delete when there is an existing polygon (only allow one at a time)
+    var drawControlEdit = new L.Control.Draw({
+      draw: false,
+      edit: {
+        featureGroup: drawnItems
+      }
+    });
+
+    // Add the initial control
+    map.addControl(drawControlFull);
+
+    //
+    // Event listeners
+    //
+
+    map.on("draw:created", function(e) {
+      var layer = e.layer;
+      drawnItems.addLayer(layer);
+
+      // Swap the toolbaars
+      drawControlFull.remove();
+      drawControlEdit.addTo(map);
+
+      console.log(layer.getLatLngs()[0]);
+    });
+
+    map.on("draw:deleted", function(e) {
+      // Re-enable drawing when polygon is deleted
+      if (drawnItems.getLayers().length === 0) {
+        drawControlEdit.remove();
+        drawControlFull.addTo(map);
+      }
+    });
+
+    // map.on("draw:edited", function(e) {
+    //   var layer = e.layer;
+    //   var type = e.layerType;
+
+    //   if(type === 'polygon') {
+    //     var latlngs = layer.getLatLngs()[0];
+    //     var latSum = 0, lngSum = 0;
+    //     latlngs.forEach(ll => {
+    //       latSum += ll.lat;
+    //       lngSum += ll.lng;
+    //     });
+    //     var n = latlngs.length;
+    //     q("lat").value = (latSum / n).toFixed(6);
+    //     q("lng").value = (lngSum / n).toFixed(6);
+    //   }
+    // });
+  </script>
 
   <script src="Assets/app.js"></script>
   <script src="Assets/operator-map.js"></script>

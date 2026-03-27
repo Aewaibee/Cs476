@@ -23,7 +23,7 @@ import logging
 import bcrypt
 import jwt
 
-from datetime import datetime, timedelta, timezone  # For token generation
+from datetime import datetime, timedelta, timezone, date  # For token generation and date fields
 from django.conf import settings
 
 from django.http import JsonResponse
@@ -449,6 +449,10 @@ class RecordDetailView(View):
             "product_name", "pcp_act_number", "chemical_volume_l", "water_volume_l", 
             "notes", "location_text", "date_applied",
         ]
+
+        # Convert date_applied to date object instead of string
+        if "date_applied" in data and isinstance(data["date_applied"], str):
+            data["date_applied"] = date.fromisoformat(data["date_applied"])
         
         for field in editable_fields:
             if field in data:

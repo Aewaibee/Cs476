@@ -38,8 +38,8 @@ async function loadRec(){
   const pcp = r.pcp_act_number ?? r.pcpActNumber;
   const chem = r.chemical_volume_l ?? r.chemicalVolumeL;
   const water = r.water_volume_l ?? r.waterVolumeL;
-  const lat = r.geometry_lat ?? r.geometryLat;
-  const lng = r.geometry_lng ?? r.geometryLng;
+  const lat = r.geometry_center_lat ?? r.geometryCenterLat;
+  const lng = r.geometry_center_lng ?? r.geometryCenterLng;
   const missing = [];
   if(!productName) missing.push("Product Name");
   if(!pcp) missing.push("PCP Act #");
@@ -63,7 +63,7 @@ async function loadRec(){
 
 async function submit(){
   try{
-    await apiFetch(`/records/${encodeURIComponent(id)}/submit`, { method:"POST", body:"{}" });
+    await apiFetch(`/records/${encodeURIComponent(id)}/submit/`, { method:"POST", body:"{}" });
     location.href = `operator-confirm.html?id=${encodeURIComponent(id)}`;
   }catch(e){ alert(e.message); }
 }
