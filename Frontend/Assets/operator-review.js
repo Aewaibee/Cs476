@@ -48,6 +48,13 @@ async function loadRec(){
   if(missing.length) showWarn("Missing required: " + missing.join(", "));
   else clearWarn();
 
+  // Hide the edit and submit buttons if the record isn't a draft
+  const isDraft = r.status === "DRAFT";
+  const editBtn = q("btnEditLoc");
+  const submitBtn = q("btnSubmit");
+  if (editBtn) editBtn.style.display = isDraft ? "" : "none";
+  if (submitBtn) submitBtn.style.display = isDraft ? "" : "none";
+
   q("summary").innerHTML = `
     <div><b>ID:</b> ${r.id}</div>
     <div><b>Date:</b> ${dateApplied}</div>
@@ -68,7 +75,7 @@ async function submit(){
   }catch(e){ alert(e.message); }
 }
 
-q("btnEditLoc").addEventListener("click", () => location.href = `operator-map.html?id=${encodeURIComponent(id)}`);
+q("btnEditLoc").addEventListener("click", () => location.href = `operator-new-record.html?id=${encodeURIComponent(id)}`);
 q("btnSubmit").addEventListener("click", submit);
 
 loadRec();
