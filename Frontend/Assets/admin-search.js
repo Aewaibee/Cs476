@@ -11,13 +11,14 @@ async function search() {
 
 
   const qs = new URLSearchParams();
-  if (operator) qs.set("operator", operator);
-  if (product) qs.set("product", product);
-  if (status) qs.set("status", status);
+  if (operator) qs.set("operator_email", operator);
+  if (product) qs.set("product_name", product);
+  if (status && status !== "ALL") qs.set("status", status); // ALL tries to filter to an "ALL" status which doesn't exist, so skip it
 
   lastQuery = qs.toString();
 
-  const rows = await apiFetch("/admin/records/search?" + lastQuery);
+  const row_data = await apiFetch("/records/?" + lastQuery);
+  const rows = row_data.records;
   q("count").textContent = "Results: " + rows.length;
 
   const tbody = q("tbl").querySelector("tbody");
@@ -37,7 +38,7 @@ async function search() {
 
 /** Approve changes status to APPROVED */
 async function approve(id) {
-  await apiFetch(`/admin/records/${encodeURIComponent(id)}/status`, {
+  await apiFetch(`/records/${encodeURIComponent(id)}/status`, {
     method: "POST",
     body: JSON.stringify({ status: "APPROVED" })
   });
@@ -46,7 +47,7 @@ async function approve(id) {
 
 /** Flag changes status to FLAGGED */
 async function flagRec(id) {
-  await apiFetch(`/admin/records/${encodeURIComponent(id)}/status`, {
+  await apiFetch(`/records/${encodeURIComponent(id)}/status`, {
     method: "POST",
     body: JSON.stringify({ status: "FLAGGED" })
   });
@@ -67,7 +68,7 @@ function reset() {
  */
 function downloadExport(type) {
   const token = getToken();
-  const url = API_BASE + `/admin/records/export?type=${encodeURIComponent(type)}&` + lastQuery;
+  const url = API_BASE + `/records/export?type=${encodeURIComponent(type)}&` + lastQuery;
 
   fetch(url, { headers: { Authorization: "Bearer " + token } })
     .then(async res => {

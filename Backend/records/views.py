@@ -284,7 +284,7 @@ class RecordListCreateView(View):
         records = SprayRecord.objects.all().order_by("-created_at")
 
         #Then the filters 
-        #THe filters only work if the query is present in the URL
+        #The filters only work if the query is present in the URL
         #Front end needs to add these to the URL when making the request if they want to filter
 
         #Filter by workflow status
@@ -326,7 +326,7 @@ class RecordListCreateView(View):
                 Q(location_text__icontains=search) |
                 Q(notes__icontains=search) |
                 Q(pcp_act_number__icontains=search) |
-                Q(operator__email__icontains=search)
+                Q(operator_email__icontains=search)
             )
         
         #Now we gotta change everythign to the JSON format
@@ -618,7 +618,7 @@ def serialize_record(record):
     """
     return {
         "id": str(record.id),
-        "operator_email": record.operator.email,
+        "operator_email": record.operator_email,
         "date_applied": record.date_applied.isoformat(),
         "product_name": record.product_name,
         "pcp_act_number": record.pcp_act_number,
@@ -661,7 +661,7 @@ def transition_status(record_id, actor_email, expected_from, new_status):
     spray_record_subject.set_state({
         "event": "status_changed",
         "record_id": str(record.id),
-        "actor_email": actor_email or record.operator.email, #if we have an actor email from the request use that, otherwise use the operator email from the record for the log
+        "actor_email": actor_email or record.operator_email, #if we have an actor email from the request use that, otherwise use the operator email from the record for the log
         "from_status": old_status,
         "to_status": new_status,
     })

@@ -20,7 +20,11 @@ function showWarn(msg){
 function clearWarn(){ q("warn").style.display="none"; }
 
 async function loadRec(){
-  const rows = await apiFetch("/records/my");
+  // Get the current operator
+  const user = getUser()
+  // Fetch the operator's records
+  const rowData = await apiFetch(`/records/?operator_email=${encodeURIComponent(user.email)}`);
+  const rows = rowData.records;
   const r = rows.find(x => x.id === id);
   if(!r){
     alert("Record not found");

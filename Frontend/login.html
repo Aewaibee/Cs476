@@ -48,7 +48,7 @@
   <script>
     async function seed() {
       try {
-        await apiFetch("/auth/seed", { method: "POST", body: "{}" });
+        await apiFetch("/auth/seed/", { method: "POST", body: "{}" });
         alert("Seeded demo users. Now login.");
       } catch (e) { alert(e.message); }
     }
@@ -60,7 +60,7 @@
       try {
         const email = q("email").value.trim();
         const password = q("password").value;
-        const data = await apiFetch("/auth/login", {
+        const data = await apiFetch("/auth/login/", {
           method: "POST",
           body: JSON.stringify({ email, password })
         });

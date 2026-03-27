@@ -6,7 +6,11 @@ setHeader("My Records");
 setNavActive();
 
 async function load(){
-  const rows = await apiFetch("/records/my");
+  // Get the current operator
+  const user = getUser()
+  // Fetch the operator's records
+  const rowData = await apiFetch(`/records/?operator_email=${encodeURIComponent(user.email)}`);
+  const rows = rowData.records;
   const st = q("status").value;
 
   // Filter on the client for simplicity

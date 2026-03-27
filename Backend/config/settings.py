@@ -41,6 +41,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") #Altered to load from .env and split into a list
 
+# Where the frontend is allowed to make requests from
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
 # JWT settings
 JWT_SECRET = os.environ.get("JWT_SECRET", SECRET_KEY)   # Use django secret key as a backup
 JWT_ALGORITHM = "HS256"
@@ -56,10 +59,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders', # Allows frontend to make requests from backend
     'records', #This is where we define our models and views for the patterns. 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # Added for CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -154,6 +159,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ADDED SECTIONS BELOW THIS LINE
 #########################################################################
+
+# Which frontend domains are allowed to make requests to the backend
+CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS
 
 # Google Maps Key 
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')

@@ -52,20 +52,25 @@ else {
 
 
 function buildPayload() {
-  const dateApplied = q("dateApplied").value;
-  const productName = q("productName").value.trim();
-  const pcpActNumber = q("pcpActNumber").value.trim();
-  const chemicalVolumeL = Number(q("chemicalVolumeL").value);
-  const waterVolumeL = Number(q("waterVolumeL").value);
+  // Get user so that you can get the operator email
+  const user = getUser();
+  if (!user) throw new Error("Not Authenticated.");
+
+  const operator_email = user.email;
+  const date_applied = q("dateApplied").value;
+  const product_name = q("productName").value.trim();
+  const pcp_act_number = q("pcpActNumber").value.trim();
+  const chemical_volume_l = Number(q("chemicalVolumeL").value);
+  const water_volume_l = Number(q("waterVolumeL").value);
   const notes = q("notes").value.trim();
 
-  if (!dateApplied) throw new Error("Date Applied is required.");
-  if (!productName) throw new Error("Product Name is required.");
-  if (!pcpActNumber) throw new Error("PCP Act # is required.");
-  if (Number.isNaN(chemicalVolumeL)) throw new Error("Chemical volume must be a number.");
-  if (Number.isNaN(waterVolumeL)) throw new Error("Water volume must be a number.");
+  if (!date_applied) throw new Error("Date Applied is required.");
+  if (!product_name) throw new Error("Product Name is required.");
+  if (!pcp_act_number) throw new Error("PCP Act # is required.");
+  if (Number.isNaN(chemical_volume_l)) throw new Error("Chemical volume must be a number.");
+  if (Number.isNaN(water_volume_l)) throw new Error("Water volume must be a number.");
 
-  return { dateApplied, productName, pcpActNumber, chemicalVolumeL, waterVolumeL, notes: notes || undefined };
+  return { operator_email, date_applied, product_name, pcp_act_number, chemical_volume_l, water_volume_l, notes: notes || undefined };
 }
 
 // General function to handle saving a draft (Save draft or Next button)
@@ -75,7 +80,7 @@ async function saveDraft() {
     const payload = buildPayload();
 
     // POST /records creates a draft record
-    const rec = await apiFetch("/records", { method: "POST", body: JSON.stringify(payload) });
+    const rec = await apiFetch("/records/", { method: "POST", body: JSON.stringify(payload) });
 
     clearPendingSprayRecord();
     return {success: true, record: rec};

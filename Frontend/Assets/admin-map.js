@@ -3,7 +3,7 @@ setHeader("Map View");
 setNavActive();
 
 (async function () {
-  const rows = await apiFetch("/admin/records/map");
+  const rows = await apiFetch("/admin/records/map/");
   const tbody = q("tbl").querySelector("tbody");
 
   tbody.innerHTML = rows.map(r => {

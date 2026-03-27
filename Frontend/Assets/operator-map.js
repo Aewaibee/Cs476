@@ -59,8 +59,11 @@ async function saveLocation() {
     if (Number.isNaN(lat) || Number.isNaN(lng)) throw new Error("Latitude/Longitude must be numbers.");
     const locationText = q("locationText").value.trim() || undefined;
 
-    // Fetch operator records and find matching one
-    const rows = await apiFetch("/records/my");
+    // Get the current operator
+    const user = getUser();
+    // Fetch the operator's records and find matching one
+    const rowData = await apiFetch(`/records/?operator_email=${encodeURIComponent(user.email)}`);
+    const rows = rowData.records;
     const rec = rows.find(r => r.id === id);
     if (!rec) throw new Error("Record not found.");
 
@@ -77,7 +80,7 @@ async function saveLocation() {
       geometry: { lat, lng }
     };
 
-    await apiFetch("/records", { method: "POST", body: JSON.stringify(payload) });
+    await apiFetch("/records/", { method: "POST", body: JSON.stringify(payload) });
     location.href = `operator-review.html?id=${encodeURIComponent(id)}`;
   } catch (e) { showErr(e.message); }
 }

@@ -3,8 +3,11 @@ setHeader("Operator Dashboard");
 setNavActive();
 
 (async function () {
+  // Get the current operator
+  const user = getUser()
   // Fetch the operator's records
-  const rows = await apiFetch("/records/my");
+  const rowData = await apiFetch(`/records/?operator_email=${encodeURIComponent(user.email)}`);
+  const rows = rowData.records;
 
   // KPI counters
   const drafts = rows.filter(r => r.status === "DRAFT").length;

@@ -16,6 +16,7 @@ After creating objects they will fire events to notify the observers which hopef
 
 import logging 
 import bcrypt
+from datetime import date
 
 from records.models import (
     User, OperatorUser, AdminUser,
@@ -196,6 +197,10 @@ class SprayRecordFactory:
         if polygon:
             cls.validate_polygon(polygon)
             center_lat, center_lng = cls.calculate_polygon_center(polygon)
+
+        # Convert date_applied to a datetime.date object if it's a string
+        if isinstance(data["date_applied"], str):
+            data["date_applied"] = date.fromisoformat(data["date_applied"])
         
         #Third is to create the record, every new record starts with a draft status 
         record = SprayRecord.objects.create(
