@@ -133,23 +133,6 @@
         drawControlFull.addTo(map);
       }
     });
-
-    // map.on("draw:edited", function(e) {
-    //   var layer = e.layer;
-    //   var type = e.layerType;
-
-    //   if(type === 'polygon') {
-    //     var latlngs = layer.getLatLngs()[0];
-    //     var latSum = 0, lngSum = 0;
-    //     latlngs.forEach(ll => {
-    //       latSum += ll.lat;
-    //       lngSum += ll.lng;
-    //     });
-    //     var n = latlngs.length;
-    //     q("lat").value = (latSum / n).toFixed(6);
-    //     q("lng").value = (lngSum / n).toFixed(6);
-    //   }
-    // });
   </script>
 
   <script src="Assets/app.js"></script>
