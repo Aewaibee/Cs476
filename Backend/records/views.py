@@ -794,7 +794,7 @@ class RecordExportView(View):
         #Return
         buffer.seek(0) #Go back to the start
         response = HttpResponse(buffer, content_type="application/pdf")
-        response["Content-Distribution"] = 'attachment; filename="spray_records.pdf"'
+        response["Content-Disposition"] = 'attachment; filename="spray_records.pdf"'
         return response
 
 ########################################################################################################################################################################################
