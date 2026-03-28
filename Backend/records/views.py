@@ -597,6 +597,7 @@ class RecordAuditLogView(View):
             data.append({
                 "id": str(log.id),
                 "record_id": str(log.record_id),
+                "actor_email": log.actor_email,
                 "action": log.action,
                 "from_status": log.from_status,
                 "to_status": log.to_status,

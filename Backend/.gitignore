@@ -6,7 +6,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-venv/
+venv/ 
 .venv/
 
 #Django Junk (database, logs)
