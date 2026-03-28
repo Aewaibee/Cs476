@@ -103,22 +103,28 @@ function buildPayload() {
   // Get user so that you can get the operator email
   const user = getUser();
   if (!user) throw new Error("Not Authenticated.");
-
   const operator_email = user.email;
-  const date_applied = q("dateApplied").value;
-  const product_name = q("productName").value.trim();
-  const pcp_act_number = q("pcpActNumber").value.trim();
-  const chemical_volume_l = Number(q("chemicalVolumeL").value);
-  const water_volume_l = Number(q("waterVolumeL").value);
+
+  // Get the form values and trim
+  const date_applied_raw = (q("dateApplied").value || "").trim();
+  const product_name_raw = (q("productName").value || "").trim();
+  const pcp_act_number_raw = (q("pcpActNumber").value || "").trim();
+  const chemical_volume_l_raw = (q("chemicalVolumeL").value || "").trim();
+  const water_volume_l_raw = (q("waterVolumeL").value || "").trim();
   const notes = q("notes").value.trim();
 
-  if (!date_applied) throw new Error("Date Applied is required.");
-  if (!product_name) throw new Error("Product Name is required.");
-  if (!pcp_act_number) throw new Error("PCP Act # is required.");
-  if (Number.isNaN(chemical_volume_l)) throw new Error("Chemical volume must be a number.");
-  if (Number.isNaN(water_volume_l)) throw new Error("Water volume must be a number.");
+  // Fill in blank fields with valid placeholder values
+  const payload = {
+    operator_email,
+    date_applied: date_applied_raw || todayYMD(),
+    product_name: product_name_raw || "",
+    pcp_act_number: pcp_act_number_raw || "",
+    chemical_volume_l: Number.isNaN(Number(chemical_volume_l_raw)) ? Number(chemical_volume_l_raw) : 0,
+    water_volume_l: Number.isNaN(Number(water_volume_l_raw)) ? Number(water_volume_l_raw) : 0,
+    notes: notes || undefined
+  };
 
-  return { operator_email, date_applied, product_name, pcp_act_number, chemical_volume_l, water_volume_l, notes: notes || undefined };
+  return payload;
 }
 
 // General function to handle saving a draft (Save draft or Next button)
