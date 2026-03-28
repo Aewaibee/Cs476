@@ -4,7 +4,8 @@ setNavActive();
 
 // Send user here if they would like to edit their draft
 const params = new URLSearchParams(location.search);
-const id = params.get("id");
+// Change to variable so that it can be set after the initial draft save
+let id = params.get("id");
 
 // Default date to today's date (YYYY-MM-DD)
 function todayYMD() {
@@ -113,6 +114,10 @@ function buildPayload() {
   const water_volume_l_raw = (q("waterVolumeL").value || "").trim();
   const notes = q("notes").value.trim();
 
+  // Make sure chem and water fields are either blank or a value
+  if (chemical_volume_l_raw && isNaN(chemical_volume_l_raw)) throw new Error("Chemical Volume must be a number.");
+  if (water_volume_l_raw && isNaN(water_volume_l_raw)) throw new Error("Water Volume must be a number."); 
+
   // Fill in blank fields with valid placeholder values
   const payload = {
     operator_email,
@@ -134,6 +139,7 @@ async function saveDraft() {
     const payload = buildPayload();
 
     let rec;
+
     if (id) {
       // update the existing draft
       rec = await apiFetch(`/records/${encodeURIComponent(id)}/`, { method: "PUT", body: JSON.stringify(payload) });
@@ -167,6 +173,21 @@ async function handleSaveDraft() {
     // when the user tries to create a new record.
     window.removeEventListener("beforeunload", autosavePendingRecord);
     clearPendingSprayRecord();
+
+    // Set the id if this was the first time saving the draft
+    // This fixes a bug where saving the draft initially would not set
+    // the id and every save after would create a new draft record
+    if (!id && result.record.id) {
+      // Set the id for future saves
+      id = result.record.id;
+      // Get the current URL
+      const newURL = new URL(window.location.href);
+      // Set the id
+      newURL.searchParams.set("id", result.record.id);
+      // Update the URL with the new id
+      window.history.replaceState(null, "", newURL.toString());
+    }
+
     showMsg("Draft saved to server.", "ok");
   }
   else if (result.reason === "offline") {

@@ -39,7 +39,6 @@ function validateRecord(rec) {
   if (water == null || water === "" || Number(water) === 0) missing.push("Water Volume (L)");
   // Catch blank or missing lat/lng
   if (!lat || !lng) missing.push("Location (lat/lng)");
-  console.log(lat, lng);
 
   return {missing, dateApplied, productName, pcp, chem, water, lat, lng};
 }

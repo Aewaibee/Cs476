@@ -140,8 +140,6 @@ map.on("draw:created", function(e) {
   q("lat").value = center.lat.toFixed(6);
   q("lng").value = center.lng.toFixed(6);
   updateOSM(true);
-
-  console.log(layer.getLatLngs()[0]);
 });
 
 map.on("draw:edited", function(e) {
@@ -209,7 +207,6 @@ function updateOSM(fromPolygon = false) {
 
     // If one of the coordinates was removed, remove the polygon from the map
     if (drawnItems.getLayers().length > 0) drawnItems.clearLayers();
-    console.log(drawnItems.getLayers().length);
     drawControlEdit.remove();
     drawControlFull.addTo(map);
     map.setView(DEFAULT_VIEW[0], DEFAULT_VIEW[1]);
@@ -245,12 +242,10 @@ async function saveLocation() {
 
     // If there is a drawn polygon, use it. Otherwise, make a small polygon around the inputted lat and lng
     if (layers.length > 0) {
-      console.log(layers.length);
       const layer = layers[0];
       polygonCoords = layer.getLatLngs()[0];
     }
     else {
-      console.log(lat, lng);
       if (Number.isNaN(Number(lat)) || Number.isNaN(Number(lng))) throw new Error("Please draw a polygon or enter coordinates.");
       // Used to make a small square around the entered coordinates (keeps it as a polygon)
       polygonCoords = makePolyFromPoint(lat, lng);
