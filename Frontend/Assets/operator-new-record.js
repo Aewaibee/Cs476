@@ -119,8 +119,8 @@ function buildPayload() {
     date_applied: date_applied_raw || todayYMD(),
     product_name: product_name_raw || "",
     pcp_act_number: pcp_act_number_raw || "",
-    chemical_volume_l: Number.isNaN(Number(chemical_volume_l_raw)) ? Number(chemical_volume_l_raw) : 0,
-    water_volume_l: Number.isNaN(Number(water_volume_l_raw)) ? Number(water_volume_l_raw) : 0,
+    chemical_volume_l: chemical_volume_l_raw ? Number(chemical_volume_l_raw) : 0,
+    water_volume_l: water_volume_l_raw ? Number(water_volume_l_raw) : 0,
     notes: notes || undefined
   };
 
