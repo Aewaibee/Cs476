@@ -612,6 +612,193 @@ class RecordAuditLogView(View):
 
 ########################################################################################################################################################################################
 
+#Export View 
+# Will handle the exporting of records to JSON, CSV, or PDF formats 
+#The frontend implemented three buttons that call this with different types 
+import csv 
+import io 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RecordExportView(View):
+    """ 
+    THis is for the GET /api/records/export?type=JSON|CSV|PDF
+
+    Will export the filtered records as a downlaodable file. 
+    I will use the same search filters as RecordListCreateView to allow us to export specific set of records 
+    THe frontend will then trigger a download of the file as a repsonse
+    """
+    def get(self, request):
+        #First lets check authentication 
+        payload, auth_error = get_auth_payload(request)
+        if auth_error:
+            return auth_error 
+        
+        #Its important to make sure that only an admin can export records since they could contain sensitive information 
+        if payload.get("role") != "ADMIN": 
+            return JsonResponse({"error": "Admin role is required"}, status=403) #403 is forbidden 
+        
+        #We need to get the export type from the query
+        export_type = request.GET.get("type", "JSON").upper() #lets default to JSON
+        if export_type not in ("JSON" "CSV", "PDF"):
+            return JsonResponse(
+                {"error": "Invalid export type. Needs to be one of JSON, CSV, or PDF"},
+                status =400, #Thats a bad request yo 
+            )
+        
+        #Now we gotta apply the same filters as the list view 
+        records = SprayRecord.objects.all().order_by("-created_at")
+
+        status = request.GET.get("status")
+        if status: 
+            records = records.filter(status=status)
+        
+        operator = request.GET.get("operator_email")
+        if operator:
+            records = records.filter(operator_email=operator)
+        
+        date_from = request.GET.get("date_from")
+        if date_from:
+            records = records.filter(date_applied__gte=date_from)
+        
+        date_to = request.GET.get("date_to")
+        if date_to:
+            records = records.filter(date_applied__lte = date_to)
+        
+        product_name = request.GET.get("product_name")
+        if product_name: 
+            records = records.filter(product_name__icontains=product_name)
+        
+        pcp_act_number = request.GET.get("pcp_act_number")
+        if pcp_act_number:
+            records = records.filter(pcp_act_number=pcp_act_number)
+        
+        search = request.GET.get("search") #I legit retyped everything above this until i realized i couldve just copied everything from abaove like i said i was going to in the comment... oopsie
+        if search:
+            from django.db.models import Q #This lets us do more complex queries with OR and AND and stuff
+            records = records.filter(
+                Q(product_name__icontains=search) |
+                Q(location_text__icontains=search) |
+                Q(notes__icontains=search) |
+                Q(pcp_act_number__icontains=search) |
+                Q(operator_email__icontains=search)
+            ) 
+        
+        #Now we got the records so lests export them in the right format, but not before we convert them to a list of dictionaries!
+        data = []
+        for record in records: 
+            data.append(serialize_record(record))
+        
+        if export_type == "JSON":
+            return self.export_json(data)
+        elif export_type == "CSV":
+            return self.export_csv(data)
+        elif export_type == "PDF":
+            return self.export_pdf(data)
+    
+    def export_json(self, data):
+        """
+        Will return the data as a JSON file download
+        """
+        response = JsonResponse(data, safe=False)
+        response["Content-Disposition"] = 'attachment; filename="spray_records.json"'
+        return response #Maybe we onjly should have allowed exports as JSON, this one was so easy 
+    
+    def export_csv(self, data):
+        """
+        This export records as a CSV download file
+        """
+        from django.http import HttpResponse
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="spray_records.csv"'
+
+        if not data:
+            return response #return empty csv if there is no data 
+        
+        #Now lets use the keys of the first record as the header row for the CSV
+        fieldnames = [
+            "id", "operator_email", "date_applied", "product_name", "pcp_act_number",
+            "chemical_volume_l", "water_volume_l", "notes", "location_text", "status", 
+            "created_at", "updated_at", "geometry_center_lat", "geometry_center_lng",
+        ]
+
+        writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction="ignore") #this extrasaction is super important it tells the writer to ignore fields that are in data but not fieldnames
+        writer.writeheader() #THis writes the head row 
+        for record in data: 
+            writer.writerow(record) #This writes each record as a row
+        
+        return response
+
+    def export_pdf(self, data): 
+        """ 
+        This will export the records as a PDF file download 
+        Ive made pdfs before, i hate it 
+        """ 
+        #All these imports are for the PDF generation, some are for making it look all pretty <3
+        from django.http import HttpResponse 
+        from reportlab.lib.pagesizes import letter, landscape 
+        from reportlab.lib import colors #Ill get a lil fancy for y'all 
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet 
+
+        #Ok, i remember we need to create the PDF in mem 
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=landscape(letter)) #We want landscape for more space for the table 
+        elements = [] #This will hold the elements of the pdf 
+        styles = getSampleStyleSheet() #Gets default styles for making it look nice 
+
+        #Title 
+        elements.append(Paragraph("SprayTrack - Spray Records Export", styles["Title"]))
+        elements.append(Spacer(1, 20)) #Space between title and table 
+
+        if not data: 
+            elements.append(Paragraph("No records found.", styles["Normal"]))
+        else:
+            #Table head 
+            headers = [
+                "Date", "Operator", "Product", "PCP Act #", "Chem (L)",
+                "Water (L)", "Status",
+            ]
+
+            #Table rows 
+            table_data = [headers]
+            for record in data:
+                table_data.append([
+                    str(record.get("date_applied", "")),
+                    str(record.get("operator_email", "")),
+                    str(record.get("product_name", "")),
+                    str(record.get("pcp_act_number", "")),
+                    str(record.get("chemical_volume_l", "")),
+                    str(record.get("water_volume_l", "")),
+                    str(record.get("status", "")),
+                ])
+            
+            #Lets get fancy 
+            table = Table(table_data, repeatRows=1) #repeat rows makes the header row show up on every page 
+            table.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 12),
+                ("FONTSIZE", (0, 1), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
+            ]))
+            elements.append(table)
+        
+        #Build
+        doc.build(elements)
+
+        #Return
+        buffer.seek(0) #Go back to the start
+        response = HttpResponse(buffer, content_type="application/pdf")
+        response["Content-Distribution"] = 'attachment; filename="spray_records.pdf"'
+        return response
+
+########################################################################################################################################################################################
+
 #Helper functions 
 def serialize_record(record):
     """ 

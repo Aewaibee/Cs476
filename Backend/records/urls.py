@@ -16,6 +16,7 @@ from records.views import (
     RecordApproveView,
     RecordFlagView,
     RecordAuditLogView,
+    RecordExportView,
 )
 
 urlpatterns = [
@@ -23,6 +24,7 @@ urlpatterns = [
     path("auth/login/", AuthLoginView.as_view(), name='auth-login'),
     path('users/', UserCreateView.as_view(), name='user-create'),
     path('records/', RecordListCreateView.as_view(), name='record-list-create'),
+    path('records/export/', RecordExportView.as_view(), name='record-export'),
     path("records/<uuid:record_id>/", RecordDetailView.as_view(), name="record-detail"),
     path("records/<uuid:record_id>/submit/", RecordSubmitView.as_view(), name="record-submit"),
     path("records/<uuid:record_id>/approve/", RecordApproveView.as_view(), name="record-approve"),
