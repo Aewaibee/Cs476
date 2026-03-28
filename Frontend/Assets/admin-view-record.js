@@ -61,8 +61,44 @@ async function loadRec(){
   const btnFlag = q("btnFlag");
   if (btnApprove) btnApprove.disabled = (record.status !== "SUBMITTED");
   if (btnFlag) btnFlag.disabled = (record.status !== "SUBMITTED");
-}
 
+  //Load the audit log for this record
+  try {
+    const auditData = await apiFetch(`/records/${encodeURIComponent(viewId)}/audit-log/`)
+    const logs = auditData.audit_logs; 
+  
+    if (logs.length === 0) {
+      q("auditLog").innerHTML = "<p class='small'>No audit history available.</p>";
+    } else {
+      q("auditLog").innerHTML = ` 
+        <table style ="width:100%">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action</th>
+              <th>By</th>
+              <th>From</th>
+              <th>To</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.map(log => `
+              <tr>
+                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                <td>${log.action}</td>
+                <td>${log.actor_email}</td>
+                <td>${log.from_status || "—"}</td>
+                <td>${log.to_status || "—"}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+  } catch (e) {
+    q("auditLog").innerHTML = "<p class='small'>Could not load audit log.</p>";
+  }
+}
 /** Approve changes status to APPROVED */
 async function approve() {
   const btn = q("btnApprove");
