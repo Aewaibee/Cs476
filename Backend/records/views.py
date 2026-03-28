@@ -639,7 +639,7 @@ class RecordExportView(View):
         
         #We need to get the export type from the query
         export_type = request.GET.get("type", "JSON").upper() #lets default to JSON
-        if export_type not in ("JSON" "CSV", "PDF"):
+        if export_type not in ("JSON", "CSV", "PDF"): #missed a pesky littel comma here! you silly goose 
             return JsonResponse(
                 {"error": "Invalid export type. Needs to be one of JSON, CSV, or PDF"},
                 status =400, #Thats a bad request yo 
