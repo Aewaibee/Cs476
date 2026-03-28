@@ -3,7 +3,7 @@ Simple English comments version
 This documentation file belongs to the CS476 Spray Records project.
 -->
 # Spray Records Web App (Commented Version)
-HTML / CSS / JavaScript + MySQL + JSON REST API
+HTML / CSS / JavaScript + MySQL + Django
 
 ## What is included
 - Frontend: pure HTML/CSS/JavaScript pages (no frameworks)
@@ -42,6 +42,9 @@ HTML / CSS / JavaScript + MySQL + JSON REST API
 - Make sure `API_BASE` in `frontend/assets/app.js` matches your backend URL
 
 ## Pages included
+General:
+- login.html
+
 Operator:
 - operator-dashboard.html
 - operator-new-record.html
@@ -53,4 +56,5 @@ Operator:
 Admin:
 - admin-dashboard.html
 - admin-search.html
+- admin-view-record.html
 - admin-map.html

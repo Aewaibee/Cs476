@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>View Record</title>
+  <link rel="stylesheet" href="Assets/styles.css" />
+</head>
+
+<body>
+  <header>
+    <div class="brand">Spray Records</div>
+    <div class="right">
+      <span id="pageTitle"></span>
+      <span id="userMeta"></span>
+      <button class="secondary" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <nav>
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="admin-search.html">Manage Records</a>
+        <a href="admin-map.html">Map View</a>
+      </nav>
+
+      <section style="flex:1">
+        <h2>View Record</h2>
+        <div id="warn" class="notice error" style="display:none"></div>
+
+        <div class="card" id="summary"></div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="secondary" id="btnBack" onclick="location.href='admin-search.html'">Back to Search</button>
+          <button class="secondary" id="btnApprove">Approve</button>
+          <button class="secondary" id="btnFlag">Flag</button>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <script src="Assets/app.js"></script>
+  <script src="Assets/admin-view-record.js"></script>
+</body>
+
+</html>

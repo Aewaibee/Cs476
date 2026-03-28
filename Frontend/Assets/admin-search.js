@@ -1,5 +1,5 @@
 requireAuth("ADMIN");
-setHeader("Search Records");
+setHeader("Manage Records");
 setNavActive();
 
 let lastQuery = "";
@@ -29,6 +29,7 @@ async function search() {
       <td>${r.product_name}</td>
       <td>${fmtStatus(r.status)}</td>
       <td>
+        <button class="secondary" onclick="viewRec('${r.id}')">View</button>
         <button class="secondary" onclick="approve('${r.id}')">Approve</button>
         <button class="secondary" onclick="flagRec('${r.id}')">Flag</button>
       </td>
@@ -52,6 +53,11 @@ async function flagRec(id) {
     body: JSON.stringify({ status: "FLAGGED" })
   });
   await search();
+}
+
+//** Navigate to read-only admin view for a record */
+function viewRec(id) {
+  window.location.href = `admin-view-record.html?id=${encodeURIComponent(id)}`;
 }
 
 /** Reset filters and re-search */
@@ -105,3 +111,4 @@ search();
 // Expose functions for inline onclick handlers
 window.approve = approve;
 window.flagRec = flagRec;
+window.viewRec = viewRec;
