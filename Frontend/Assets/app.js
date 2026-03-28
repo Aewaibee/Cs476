@@ -121,6 +121,17 @@ async function apiFetch(path, options = {}){
   const ct = res.headers.get("content-type") || "";
   const data = ct.includes("application/json") ? await res.json() : await res.text();
 
+  // Handle expired token
+  if (res.status === 401) {
+    const msg = (data && data.error) ? data.error : "Unauthorized";
+    // Display an error message
+    alert(msg.includes("expired") ? "Session expired. Please log in again." : msg);
+    // Clear auth and redirect
+    clearAuth();
+    window.location.href = "login.html";
+    throw new Error(msg);
+  }
+
   if(!res.ok){
     const msg = (data && data.error)
       ? data.error
