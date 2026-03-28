@@ -39,7 +39,16 @@ SECRET_KEY = os.environ.get ("DJANGO_SECRET_KEY", "backup-secret-key-for-develop
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") #Altered to load from .env and split into a list
+DEBUG = True
+
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1,atharv1224.pythonanywhere.com"
+).split(",")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://atharv1224.pythonanywhere.com",
+] #Altered to load from .env and split into a list
 
 # Where the frontend is allowed to make requests from
 ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
