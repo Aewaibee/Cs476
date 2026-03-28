@@ -37,7 +37,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get ("DJANGO_SECRET_KEY", "backup-secret-key-for-development-only") #Altered to load from .env 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 DEBUG = True
 
